@@ -13,8 +13,6 @@ public class Bullet : MonoBehaviour
             {
                 enemy.TakeDamage(damage);
             }
-
-            Destroy(gameObject); // Destroy bullet on impact
         }
     }
 }

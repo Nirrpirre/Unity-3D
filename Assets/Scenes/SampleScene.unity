@@ -30660,7 +30660,7 @@ MonoBehaviour:
   bulletPrefab: {fileID: 4574917733420374921}
   firePoint: {fileID: 1963522458}
   bulletSpeed: 45
-  fireRate: 0.8
+  fireRate: 0.7
   allowedToShoot: 1
   maxAmmo: 15
   currentAmmo: 0
