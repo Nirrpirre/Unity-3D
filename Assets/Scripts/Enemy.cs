@@ -24,6 +24,12 @@ public class Enemy : MonoBehaviour
     private bool allowedToMove = true;
     private bool allowedToAttack = true;
 
+    public bool isBoss = false;
+
+    public GameObject victoryCanvas;
+
+    public GameObject wallToDestroyOnClear; // Add reference to the wall that should be removed
+
     public void SetEnemyState(bool isActive)
     {
         allowedToMove = isActive;
@@ -56,11 +62,9 @@ public class Enemy : MonoBehaviour
     {
         if (!allowedToMove) return;
 
-        // Detect player within range
         bool playerInRawSight = Physics.CheckSphere(transform.position, sightRange, whatIsPlayer);
         bool playerInRawAttack = Physics.CheckSphere(transform.position, attackRange, whatIsPlayer);
 
-        // Line of sight check
         if (playerInRawSight)
         {
             Vector3 directionToPlayer = (player.position - transform.position).normalized;
@@ -72,7 +76,7 @@ public class Enemy : MonoBehaviour
             }
             else
             {
-                playerInSightRange = false; // There's an obstacle (e.g., a roof)
+                playerInSightRange = false;
             }
         }
         else
@@ -80,7 +84,6 @@ public class Enemy : MonoBehaviour
             playerInSightRange = false;
         }
 
-        // Same check for attack range
         if (playerInRawAttack)
         {
             Vector3 directionToPlayer = (player.position - transform.position).normalized;
@@ -100,7 +103,6 @@ public class Enemy : MonoBehaviour
             playerInAttackRange = false;
         }
 
-        // Enemy Behavior
         if (!playerInSightRange && !playerInAttackRange)
             PatrolBetweenPoints();
         if (playerInSightRange && !playerInAttackRange)
@@ -108,7 +110,6 @@ public class Enemy : MonoBehaviour
         if (playerInAttackRange && allowedToAttack)
             AttackPlayer();
     }
-
 
     private void PatrolBetweenPoints()
     {
@@ -127,7 +128,6 @@ public class Enemy : MonoBehaviour
             }
         }
     }
-
 
     private void ChasePlayer()
     {
@@ -166,8 +166,37 @@ public class Enemy : MonoBehaviour
 
     private void DestroyEnemy()
     {
+        if (isBoss && victoryCanvas != null)
+        {
+            victoryCanvas.SetActive(true);
+            Time.timeScale = 0f;
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
+
+        if (!isBoss)
+        {
+            bool onlyBossLeft = true;
+            Enemy[] remainingEnemies = FindObjectsOfType<Enemy>();
+
+            foreach (Enemy enemy in remainingEnemies)
+            {
+                if (enemy != this && !enemy.isBoss)
+                {
+                    onlyBossLeft = false;
+                    break;
+                }
+            }
+
+            if (onlyBossLeft && wallToDestroyOnClear != null)
+            {
+                Destroy(wallToDestroyOnClear);
+            }
+        }
+
         Destroy(gameObject);
     }
+
 
     private void OnDrawGizmosSelected()
     {

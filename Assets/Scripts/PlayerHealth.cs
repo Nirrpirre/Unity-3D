@@ -1,37 +1,53 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerHealth : MonoBehaviour
 {
     [Header("Health Settings")]
-    public float health = 100f; 
+    public float health = 100f;
+    private float maxHealth;
 
     [Header("Game Over UI")]
     public GameObject gameOverCanvas;
+
+    [Header("Health Bar UI")]
+    public Image healthBar;
 
     Rigidbody rb;
     GameObject[] enemyList;
 
     void Start()
     {
+        maxHealth = health;
         rb = GetComponent<Rigidbody>();
         enemyList = GameObject.FindGameObjectsWithTag("Enemy");
 
         gameOverCanvas.SetActive(false);
+        UpdateHealthBar();
     }
 
     public void TakeDamage(float damage)
     {
         health -= damage;
+        health = Mathf.Clamp(health, 0, maxHealth);
+
+        UpdateHealthBar();
 
         if (health <= 0)
         {
-            health = 0;
             EndGame();
+        }
+    }
+
+    void UpdateHealthBar()
+    {
+        if (healthBar != null)
+        {
+            float healthPercent = health / maxHealth;
+            healthBar.rectTransform.localScale = new Vector3(healthPercent, 1f, 1f);
         }
     }
 
@@ -61,11 +77,10 @@ public class PlayerHealth : MonoBehaviour
         {
             if (enemy.TryGetComponent(out Enemy enemyScript))
             {
-                enemyScript.SetEnemyState(false); 
+                enemyScript.SetEnemyState(false);
             }
         }
     }
-
 
     public float GetHealth()
     {
@@ -74,7 +89,6 @@ public class PlayerHealth : MonoBehaviour
 
     public void RestartGame()
     {
-        Debug.Log("Hej");
         Time.timeScale = 1;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }

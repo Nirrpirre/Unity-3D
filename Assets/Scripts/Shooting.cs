@@ -1,13 +1,13 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 public class GunController : MonoBehaviour
 {
-    public GameObject bulletPrefab; 
-    public Transform firePoint; 
-    public float bulletSpeed = 20f; 
-    public float fireRate = 0.5f; 
+    public GameObject bulletPrefab;
+    public Transform firePoint;
+    public float bulletSpeed = 20f;
+    public float fireRate = 0.5f;
     private float nextFireTime = 0f;
     public bool allowedToShoot = true;
 
@@ -18,6 +18,7 @@ public class GunController : MonoBehaviour
     private bool isReloading = false;
     public KeyCode reloadKey = KeyCode.R;
 
+    public int damage = 30;  // Set this per weapon in the inspector
 
     void Start()
     {
@@ -35,7 +36,6 @@ public class GunController : MonoBehaviour
             Shoot();
             nextFireTime = Time.time + fireRate;
             currentAmmo--;
-
         }
 
         if (Input.GetKeyDown(reloadKey) && currentAmmo < maxAmmo && totalAmmo > 0)
@@ -46,17 +46,21 @@ public class GunController : MonoBehaviour
 
     void Shoot()
     {
-        
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
         Rigidbody rb = bullet.GetComponent<Rigidbody>();
         rb.velocity = firePoint.forward * bulletSpeed;
+
+        Bullet bulletScript = bullet.GetComponent<Bullet>();
+        if (bulletScript != null)
+        {
+            bulletScript.damage = damage;
+        }
     }
 
     IEnumerator Reload()
     {
         isReloading = true;
-        Debug.Log("Realoading...");
-
+        Debug.Log("Reloading...");
 
         yield return new WaitForSeconds(reloadTime);
 
